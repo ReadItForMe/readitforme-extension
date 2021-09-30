@@ -23,12 +23,8 @@ async function postData(data = {}) {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
-document.querySelector('#submit').addEventListener('click', () => {
-    let email = $('#email').val()
-    if (validEmail(email)) {
-        chrome.storage.local.set({
-            email: email
-        });
+chrome.storage.local.get(['email'], function(result) {
+    if (validEmail(result.email)) {
         chrome.tabs.query({
             active: true,
             currentWindow: true
@@ -38,7 +34,7 @@ document.querySelector('#submit').addEventListener('click', () => {
 
             postData({
                     article: {
-                        email: email,
+                        email: result.email,
                         url: activeTabUrl,
                         send: false
                     }
@@ -46,18 +42,9 @@ document.querySelector('#submit').addEventListener('click', () => {
                 .then(data => {})
                 .catch((error) => {})
         });
-        setTimeout(function() {
-            $('#contactForm').fadeOut();
-        }, 100);
-        setTimeout(function() {
-            $('.success').fadeIn();
-        }, 500);
-        setTimeout(function() {
-            chrome.browserAction.setPopup({
-                popup: "confirmation.html"
-            });
-        }, 1000);
     } else {
-        $('.invalid-feedback').show();
+        chrome.browserAction.setPopup({
+            popup: "popup.html"
+        });
     }
 });
